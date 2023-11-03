@@ -31,7 +31,6 @@ public class Main {
             // La connection prepara uno statement sql
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 // Faccio il binding dei parametri
-                // il primo parametro è un intero
                 preparedStatement.setString(1, "%" + parametroRicerca + "%");
 
                 // Eseguo il prepared statement
