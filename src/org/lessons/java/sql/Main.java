@@ -43,7 +43,7 @@ public class Main {
                         String nomeRegione = resultSet.getString("nome_della_regione");
                         String nomeContinente = resultSet.getString("nome_del_continente");
                         // Stampo la riga
-                        System.out.println(nomeNazione + " - " + idNazione + " - " + nomeRegione + " - " + nomeContinente);
+                        System.out.println(idNazione + " - " + nomeNazione + " - " + nomeRegione + " - " + nomeContinente);
                     }
                 } catch (SQLException e) {
                     System.out.println("Impossibile eseguire la query.");
@@ -53,6 +53,82 @@ public class Main {
                 System.out.println("Impossibile preparare la query.");
                 e.printStackTrace();
             }
+
+            System.out.print("Inserisci un id: ");
+            String parametroId = scan.nextLine();
+
+            // Creo la query
+            query = "SELECT l.`language` " +
+                    "FROM countries c " +
+                    "JOIN country_languages cl ON cl.country_id = c.country_id " +
+                    "JOIN languages l ON l.language_id = cl.language_id " +
+                    "WHERE c.country_id = ?";
+
+            // La connection prepara uno statement sql
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                // Faccio il binding dei parametri
+                preparedStatement.setString(1, parametroId);
+
+                // Eseguo il prepared statement
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    // Itero sul result set
+                    String stringaFinale = "Lingue: ";
+                    while (resultSet.next()) {
+                        // Ad ogni iterazione resultSet si sposta e punta alla riga successiva
+                        String lingua = resultSet.getString("language");
+                        // Concateno alla stringa la nuova lingua
+                        stringaFinale += lingua + ", ";
+                    }
+                    // Rimuovo virgola alla fine
+                    stringaFinale = stringaFinale.substring(0, stringaFinale.length() - 2);
+                    // Stampo la stringa
+                    System.out.println(stringaFinale);
+                } catch (SQLException e) {
+                    System.out.println("Impossibile eseguire la query.");
+                    e.printStackTrace();
+                }
+            } catch (SQLException e) {
+                System.out.println("Impossibile preparare la query.");
+                e.printStackTrace();
+            }
+
+            // Creo la query
+            query = "SELECT cs.`year`, cs.population, cs.gdp " +
+                    "FROM countries c " +
+                    "JOIN country_stats cs ON cs.country_id = c.country_id " +
+                    "WHERE c.country_id = ?" +
+                    "ORDER BY cs.`year` DESC " +
+                    "LIMIT 1;";
+
+            // La connection prepara uno statement sql
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                // Faccio il binding dei parametri
+                preparedStatement.setString(1, parametroId);
+
+                // Eseguo il prepared statement
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    // Itero sul result set
+                    while (resultSet.next()) {
+                        // Ad ogni iterazione resultSet si sposta e punta alla riga successiva
+                        String anno = resultSet.getString("year");
+                        String popolazione = resultSet.getString("population");
+                        String gdp = resultSet.getString("gdp");
+
+                        // Stampo la stringa
+                        System.out.println("Statistiche più recenti");
+                        System.out.println("Anno: " + anno);
+                        System.out.println("Popolazione: " + popolazione);
+                        System.out.println("GDP: " + gdp);
+                    }
+                } catch (SQLException e) {
+                    System.out.println("Impossibile eseguire la query.");
+                    e.printStackTrace();
+                }
+            } catch (SQLException e) {
+                System.out.println("Impossibile preparare la query.");
+                e.printStackTrace();
+            }
+
         } catch (SQLException e) {
             System.out.println("Impossibile aprire una connessione.");
             e.printStackTrace();
