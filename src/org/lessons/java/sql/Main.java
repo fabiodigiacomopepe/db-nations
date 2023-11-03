@@ -17,15 +17,23 @@ public class Main {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             // Dentro al try ho la connection aperta
 
+            System.out.print("Inserisci un parametro di ricerca: ");
+            String parametroRicerca = scan.nextLine();
+
             // Creo la query
             String query = "SELECT c.name AS nome, c.country_id AS id, r.name AS nome_della_regione, c2.name AS nome_del_continente " +
                     "FROM countries c " +
                     "JOIN regions r ON r.region_id = c.region_id " +
                     "JOIN continents c2 ON c2.continent_id = r.continent_id " +
+                    "WHERE c.name LIKE ?" +
                     "ORDER BY c.name ASC;";
 
             // La connection prepara uno statement sql
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                // Faccio il binding dei parametri
+                // il primo parametro è un intero
+                preparedStatement.setString(1, "%" + parametroRicerca + "%");
+
                 // Eseguo il prepared statement
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     // Itero sul result set
